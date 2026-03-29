@@ -33,4 +33,5 @@
     regexp: '^PermitRootLogin'
     line: 'PermitRootLogin no'
   notify: Restart ssh
-  when: disable_root_ssh
+  when: disable_root_ssh | bool
+
