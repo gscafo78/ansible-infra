@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Ansible
+*.retry
+
+# Virtualenv
+../ansible-venv/
+venv/
+
+# SSH keys
+*.pem
+*.key
+
+# Editor
+.vscode/
+.idea/
+
+# Logs
+*.log
