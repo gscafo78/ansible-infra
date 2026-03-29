@@ -1,0 +1,87 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Upgrade all packages
+  apt:
+    upgrade: dist
+  when: auto_upgrade
+
+- name: Install baseline packages
+  apt:
+    name:
+      - vim
+      - curl
+      - wget
+      - git
+      - htop
+      - ufw
+      - fail2ban
+      - unattended-upgrades
+      - chrony
+    state: present
+
+- name: Set timezone
+  timezone:
+    name: "{{ timezone }}"
+
+- name: Enable and start chrony
+  service:
+    name: chrony
+    state: started
+    enabled: true
+
+# ---------------- SSH HARDENING ----------------
+
+- name: Harden SSH - PermitRootLogin
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin'
+    line: "PermitRootLogin {{ ssh_permit_root_login }}"
+  notify: Restart ssh
+
+- name: Harden SSH - PasswordAuthentication
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication'
+    line: "PasswordAuthentication {{ ssh_password_authentication }}"
+  notify: Restart ssh
+
+- name: Harden SSH - MaxAuthTries
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^MaxAuthTries'
+    line: "MaxAuthTries {{ ssh_max_auth_tries }}"
+  notify: Restart ssh
+
+# ---------------- FIREWALL ----------------
+
+- name: Enable UFW
+  ufw:
+    state: enabled
+    policy: deny
+
+- name: Allow SSH
+  ufw:
+    rule: allow
+    name: OpenSSH
+
+# ---------------- FAIL2BAN ----------------
+
+- name: Enable fail2ban
+  service:
+    name: fail2ban
+    state: started
+    enabled: true
+
+# ---------------- UNATTENDED UPGRADES ----------------
+
+- name: Enable unattended upgrades
+  copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+  when: auto_upgrade

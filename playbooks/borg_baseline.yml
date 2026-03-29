@@ -1,0 +1,6 @@
+- name: Baseline Debian hardening
+  hosts: borg
+  become: true
+
+  roles:
+    - baseline_debian
