@@ -85,11 +85,6 @@
 
 # ---------------- DOCKER HARDENING ----------------
 
-- name: Ensure docker installed
-  package:
-    name: docker.io
-    state: present
-
 - name: Deploy hardened docker daemon config
   template:
     src: daemon.json.j2
