@@ -1,0 +1,29 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Dist upgrade
+  apt:
+    upgrade: dist
+  register: upgrade_result
+
+- name: Remove unused packages
+  apt:
+    autoremove: yes
+
+# Verifica se è richiesto reboot (Debian standard file)
+
+- name: Check if reboot required
+  stat:
+    path: /var/run/reboot-required
+  register: reboot_required
+
+- name: Reboot if required
+  reboot:
+    msg: "Reboot initiated by Ansible after kernel upgrade"
+    reboot_timeout: "{{ reboot_timeout }}"
+  when:
+    - auto_reboot
+    - reboot_required.stat.exists

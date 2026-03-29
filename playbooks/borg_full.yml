@@ -1,0 +1,7 @@
+- name: Full baseline Debian
+  hosts: borg
+  become: true
+
+  roles:
+    - hardening_debian
+    - maintenance_debian
