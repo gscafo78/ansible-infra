@@ -82,3 +82,19 @@
 - name: Apply sysctl settings
   command: sysctl --system
   when: false
+
+# ---------------- DOCKER HARDENING ----------------
+
+- name: Ensure docker installed
+  package:
+    name: docker.io
+    state: present
+
+- name: Deploy hardened docker daemon config
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart docker
