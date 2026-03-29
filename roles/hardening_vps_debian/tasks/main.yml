@@ -53,8 +53,32 @@
 
 # ---------------- FAIL2BAN ----------------
 
+- name: Deploy custom fail2ban jail
+  template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart fail2ban
+
 - name: Ensure fail2ban running
   service:
     name: fail2ban
     state: started
     enabled: true
+      
+# ---------------- SYSCTL HARDENING ----------------
+
+- name: Deploy sysctl hardening config
+  template:
+    src: 99-vps-hardening.conf.j2
+    dest: /etc/sysctl.d/99-vps-hardening.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: Apply sysctl
+
+- name: Apply sysctl settings
+  command: sysctl --system
+  when: false

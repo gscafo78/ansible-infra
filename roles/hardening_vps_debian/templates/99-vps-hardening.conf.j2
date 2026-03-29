@@ -1,0 +1,35 @@
+# -----------------------------
+# VPS Public Hardening (Docker Safe)
+# Managed by Ansible
+# -----------------------------
+
+# IP Spoofing protection
+net.ipv4.conf.all.rp_filter = 1
+net.ipv4.conf.default.rp_filter = 1
+
+# Disable source routing
+net.ipv4.conf.all.accept_source_route = 0
+net.ipv4.conf.default.accept_source_route = 0
+
+# Disable ICMP redirects
+net.ipv4.conf.all.accept_redirects = 0
+net.ipv4.conf.default.accept_redirects = 0
+net.ipv4.conf.all.secure_redirects = 0
+net.ipv4.conf.default.secure_redirects = 0
+
+# Log suspicious packets
+net.ipv4.conf.all.log_martians = 1
+
+# TCP SYN flood protection
+net.ipv4.tcp_syncookies = 1
+
+# Increase SYN backlog
+net.ipv4.tcp_max_syn_backlog = 2048
+
+# Protect against time-wait assassination
+net.ipv4.tcp_rfc1337 = 1
+
+# Kernel hardening
+kernel.randomize_va_space = 2
+kernel.kptr_restrict = 2
+kernel.dmesg_restrict = 1
