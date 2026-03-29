@@ -1,0 +1,60 @@
+---
+- name: Install security packages
+  apt:
+    name:
+      - ufw
+      - fail2ban
+    state: present
+    update_cache: yes
+
+# ---------------- SSH HARDENING ----------------
+
+- name: Disable root login
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin'
+    line: "PermitRootLogin {{ ssh_permit_root_login }}"
+  notify: Restart ssh
+
+- name: Disable password authentication
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication'
+    line: "PasswordAuthentication {{ ssh_password_authentication }}"
+  notify: Restart ssh
+
+- name: Restrict allowed SSH users
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^AllowUsers'
+    line: "AllowUsers {{ ssh_allowed_users }}"
+  notify: Restart ssh
+
+# ---------------- UFW CONFIG ----------------
+
+- name: Ensure UFW enabled
+  ufw:
+    state: enabled
+    policy: deny
+
+- name: Allow SSH only from whitelisted IPs
+  ufw:
+    rule: allow
+    port: 22
+    proto: tcp
+    src: "{{ item }}"
+  loop: "{{ ufw_allowed_ssh_ips }}"
+
+- name: Allow Minecraft UDP port
+  ufw:
+    rule: allow
+    port: "{{ minecraft_port }}"
+    proto: udp
+
+# ---------------- FAIL2BAN ----------------
+
+- name: Ensure fail2ban running
+  service:
+    name: fail2ban
+    state: started
+    enabled: true

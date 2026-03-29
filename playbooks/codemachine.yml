@@ -1,0 +1,7 @@
+- name: Harden VPS with Docker
+  hosts: codemachine
+  become: true
+
+  roles:
+    - hardening_vps_debian
+    - maintenance_debian

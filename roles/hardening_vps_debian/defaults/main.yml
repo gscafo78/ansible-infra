@@ -1,0 +1,10 @@
+---
+ssh_permit_root_login: "no"
+ssh_password_authentication: "no"
+ssh_allowed_users: "admin"
+
+ufw_allowed_ssh_ips:
+  - 93.48.172.186
+  - 93.51.185.84
+
+minecraft_port: 19132
