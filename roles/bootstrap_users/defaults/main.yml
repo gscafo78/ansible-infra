@@ -1,0 +1,7 @@
+---
+bootstrap_user: admin
+bootstrap_shell: /bin/bash
+bootstrap_groups:
+  - sudo
+bootstrap_public_key: ""
+disable_root_ssh: false

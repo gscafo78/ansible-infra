@@ -1,0 +1,6 @@
+- name: Bootstrap new VPS user
+  hosts: freevps
+  become: true
+
+  roles:
+    - bootstrap_users

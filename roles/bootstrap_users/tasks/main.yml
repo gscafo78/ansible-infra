@@ -1,0 +1,36 @@
+---
+- name: Ensure bootstrap group exists
+  group:
+    name: "{{ bootstrap_user }}"
+    state: present
+
+- name: Ensure bootstrap user exists
+  user:
+    name: "{{ bootstrap_user }}"
+    shell: "{{ bootstrap_shell }}"
+    groups: "{{ bootstrap_groups }}"
+    append: true
+    create_home: true
+    state: present
+
+- name: Deploy authorized_keys
+  authorized_key:
+    user: "{{ bootstrap_user }}"
+    key: "{{ lookup('file', 'admin_authorized_keys') }}"
+    state: present
+
+- name: Ensure sudo NOPASSWD for bootstrap user
+  copy:
+    dest: "/etc/sudoers.d/{{ bootstrap_user }}"
+    content: "{{ bootstrap_user }} ALL=(ALL) NOPASSWD: ALL"
+    owner: root
+    group: root
+    mode: 0440
+
+- name: Disable root SSH login (optional)
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin no'
+  notify: Restart ssh
+  when: disable_root_ssh
