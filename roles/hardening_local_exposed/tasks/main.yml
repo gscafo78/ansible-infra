@@ -1,0 +1,81 @@
+---
+# ---------------- SSH HARDENING ----------------
+
+- name: Disable root login
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin no'
+  notify: Restart ssh
+
+- name: Disable password authentication
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication'
+    line: 'PasswordAuthentication no'
+  notify: Restart ssh
+
+- name: Allow only admin user
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^AllowUsers'
+    line: 'AllowUsers admin'
+  notify: Restart ssh
+
+# ---------------- UFW CONFIG ----------------
+
+- name: Install ufw
+  apt:
+    name: ufw
+    state: present
+    update_cache: yes
+
+- name: Set default deny incoming
+  ufw:
+    direction: incoming
+    policy: deny
+
+- name: Set default allow outgoing
+  ufw:
+    direction: outgoing
+    policy: allow
+
+- name: Allow LAN subnet
+  ufw:
+    rule: allow
+    src: "{{ lan_subnet }}"
+
+- name: Allow SSH from LAN only
+  ufw:
+    rule: allow
+    port: "{{ ssh_port }}"
+    proto: tcp
+    src: "{{ lan_subnet }}"
+
+- name: Enable UFW
+  ufw:
+    state: enabled
+
+# ---------------- FAIL2BAN ----------------
+
+- name: Install fail2ban
+  apt:
+    name: fail2ban
+    state: present
+
+- name: Ensure fail2ban running
+  service:
+    name: fail2ban
+    state: started
+    enabled: true
+
+# ---------------- DOCKER HARDENING (CONSERVATIVE) ----------------
+
+- name: Deploy docker daemon config
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart docker

@@ -1,0 +1,6 @@
+- name: Harden local exposed mediavm
+  hosts: mediavm
+  become: true
+
+  roles:
+    - hardening_local_exposed

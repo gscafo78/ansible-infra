@@ -1,0 +1,6 @@
+- name: Update SIEM Rocky host
+  hosts: siem
+  become: true
+
+  roles:
+    - maintenance_rocky

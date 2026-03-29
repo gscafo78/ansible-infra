@@ -1,0 +1,22 @@
+---
+- name: Update all packages
+  dnf:
+    name: "*"
+    state: latest
+  register: update_result
+
+- name: Check if reboot required
+  command: needs-restarting -r
+  register: reboot_required
+  ignore_errors: true
+  changed_when: false
+
+- name: Reboot if required
+  reboot:
+    msg: "Reboot initiated by Ansible after update"
+    reboot_timeout: "{{ reboot_timeout }}"
+  when:
+    - auto_reboot | bool
+    - reboot_required.rc == 1---
+auto_reboot: true
+reboot_timeout: 600
